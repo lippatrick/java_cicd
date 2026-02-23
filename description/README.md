@@ -34,7 +34,7 @@ Add the architecture image to your repo and reference it here.
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/java_cicd-Architecture.png)
 
 Recommended structure:
-Use kubernetes, the modern architecture thought VM and docker still highly used!
+Use kubernetes, the modern architecture though VM and docker still highly used!
 
 ## Pipeline summary
 
@@ -133,6 +133,7 @@ Ensure:
 
 ## License
 For learning and demonstration purposes.
+
 
 
 
