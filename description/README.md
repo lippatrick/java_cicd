@@ -34,6 +34,53 @@
 
 
 
+## Production recommendations
+
+For real production deployments:
+
+- Deploy on a separate VM (Server C) instead of Jenkins server
+- Use `docker compose` on the production VM and deploy by SSH from Jenkins:
+  - `docker compose pull && docker compose up -d`
+- Tag images with build numbers for rollback:
+  - `lipatrick/java_cicd:${BUILD_NUMBER}` and `latest`
+- Restrict ports:
+  - Expose only `80/443`
+  - Keep SonarQube and Nexus private (VPN, security groups, or localhost binding)
+- Add TLS/SSL:
+  - Reverse proxy with Apache/Nginx + Certbot
+- Add monitoring/logging:
+  - Node exporter + Prometheus + Grafana (or alternatives)
+  - Central logs (optional)
+
+---
+
+## Troubleshooting
+
+### Docker permission denied in Jenkins
+Ensure:
+- Docker is running: `sudo systemctl status docker`
+- Jenkins user is in docker group:
+  - `sudo usermod -aG docker jenkins`
+  - `sudo systemctl restart jenkins`
+- Validate:
+  - `sudo -u jenkins docker ps`
+
+### SonarScanner not found
+- Check Manage Jenkins -> Tools -> SonarScanner installation name matches `sonar-scanner`
+- Validate `$SCANNER_HOME/bin/sonar-scanner` exists
+
+### Application not reachable on port 8070
+- Confirm container is running:
+  - `docker ps`
+- Confirm port mapping:
+  - `docker port <container_name>`
+- Open AWS Security Group inbound rule for port `8070` (demo only)
+- Prefer reverse proxy on `80/443` in production
+
+---
+
+## License
+For learning and demonstration purposes.
 
 
 
