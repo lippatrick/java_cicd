@@ -32,9 +32,7 @@
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-06-59.png)
 
-![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-16-45.png)
 
-![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-17-18.png)
 
 
 
