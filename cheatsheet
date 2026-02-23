@@ -1,0 +1,145 @@
+##### End-to-end CICD Project from scratch #############
+This project is an Amazon Web Services (AWS) based project portraying production implementation of CICD and also monitoring the services.
+
+1. Setup Repo
+2. Setup required Servers [Jenkins, SonarQube, Nexus, Monitoring tools]
+3. Configure Tools
+4. Create the Pipeline Jenkins and build & push to the hub.git account to manage the docker images.
+5. Trigger the Pipeline To Deploy the Application on the same jenkins (not production recommended) in a docker container.  Recommended on other production server to be deployed on. can be docker or moderm using Kubernetes.
+
+
+2. Setup required Servers [Jenkins, SonarQube, Nexus, Monitoring tools]
+/////jenkins
+create EC2 instance using the AWS console launch EC2 instance
+- give it name (jenkins)
+- AMI (Ubuntu Server 24.04 LTS (HVM), SSD Volume Type)
+- instance type (t3.xlarge 4vCPU 16GiB memory storage 25) morethan enough for the project because its to handle lots of work.
+- create or give key pair already created (.pem file RSA) downloaded on your work machine
+- networks we leave to default VPC enabling auto-assign public IP. 
+- Firewall (security groups) select the security group created where ports needed are assigned (inbound). (ssh, http, https, tcp port ranges)
+
+Assign static/elastic ip address. This addresses the issues of consistency for the ip addresses when the instance is turned off for another and back on. Aiding SSL reverse proxy (Https) and domain name mapping and security. 
+
+***3  Configure tools 
+-- login to our VM servers using generated key pairs downloaded host machine.
+-- cd /Downloads
+-- ssh -i  <name of key pairs> ubuntu@(your_IP VM)
+-- sudo hostnamectl set-hostname jenkins
+-- /bin/bash
+-- sudo apt update (very important on every machine up)
+--------------  install jenkins on the machine  ---------
+-- prequesites java jdk-17 || am using java jdk-21
+// https://www.jenkins.io/doc/book/installing/linux/#debianubuntu // use the link
+-- sudo apt update
+-- sudo apt install fontconfig openjdk-21-jre
+-- java -version
+// using longterm support to mimic the production setting 
+
+-- sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+  
+-- sudo apt update
+-- sudo apt install jenkins
+-- sudo systemctl status jenkins
+-- sudo systemctl start jenkins //if not started yet
+http://56.228.54.209:8080/ (accesses through the browser). port 8080 default for jenkins must be enabled in your security group.
+for the password (sudo cat /var/lib/jenkins/secrets/initialAdminPassword) then change to your preference then login.
+>>>>>> installing required plugins (click manage jenkins > plugins > such for the plugin you want and add it then install)
+-- sonarQube Scanner
+-- maven integration
+-- config file Provider
+-- pipeline maven integration
+-- Docker
+-- Docker Pipeline
+-- pipeline stage view
+-- eclipe....
+>>>>>> configure plugins added in (manage jenkins > tools)
+
+
+
+/////Nexus
+create EC2 instance using the AWS console launch EC2 instance
+- give it name (Nexus)
+- AMI (Ubuntu Server 24.04 LTS (HVM), SSD Volume Type)
+- instance type (t3.large 2vCPU 8GiB memory storage 18) morethan enough for the project because its to handle lots of work.
+- create or give key pair already created (.pem file RSA) downloaded on your work machine
+- networks we leave to default VPC enabling auto-assign public IP. 
+- Firewall (security groups) select the security group created where ports needed are assigned (inbound). (ssh, http, https, tcp port ranges).
+
+Assign static/elastic ip address. This addresses the issues of consistency for the ip addresses when the instance is turned off for another and back on. Aiding SSL reverse proxy (Https) and domain name mapping and security. 
+
+***3  Configure tools 
+-- login to our VM servers using generated key pairs downloaded host machine.
+-- cd /Downloads
+-- ssh -i  <name of key pairs> ubuntu@(your_IP VM)
+-- sudo hostnamectl set-hostname nexus
+-- /bin/bash
+-- sudo apt update (very important on every machine up)
+
+install docker on this machine onto which to run the nexus on docker image.
+-- sudo apt install docker.io
+-- sudo usermod -aG docker ubuntu >> giving permissions
+-- newgrp docker 
+-- docker run -d -p 8081:8081 sonatype/nexus3 >>> install nexus image on docker
+-- docker ps || Note: enable port 8081 in the security group.
+-- docker exec -it <image_ID/name> bash
+-- ls
+-- cat /sonatype-work/nexus3/admin.password  >>> password reset new then fully logged in.
+
+
+
+///// SonarQube
+create EC2 instance using the AWS console launch EC2 instance
+- give it name (SonarQube)
+- AMI (Ubuntu Server 24.04 LTS (HVM), SSD Volume Type)
+- instance type (t3.large 2vCPU 8GiB memory storage 18) morethan enough for the project because its to handle lots of work.
+- create or give key pair already created (.pem file RSA) downloaded on your work machine
+- networks we leave to default VPC enabling auto-assign public IP. 
+- Firewall (security groups) select the security group created where ports needed are assigned (inbound). (ssh, http, https, tcp port ranges)
+
+Assign static/elastic ip address. This addresses the issues of consistency for the ip addresses when the instance is turned off for another and back on. Aiding SSL reverse proxy (Https) and domain name mapping and security. 
+
+***3  Configure tools 
+-- login to our VM servers using generated key pairs downloaded host machine.
+-- cd /Downloads
+-- ssh -i  <name of key pairs> ubuntu@(your_IP VM)
+-- sudo hostnamectl set-hostname SonarQube
+-- /bin/bash
+-- sudo apt update (very important on every machine up)
+
+install docker on this machine onto which to run the nexus on docker image.
+-- sudo apt install docker.io
+-- sudo usermod -aG docker ubuntu >> giving permissions
+-- newgrp docker
+
+-- docker run -d -p 9000:9000 sonarqube:lts-community
+-- docker ps || Note: enable port 9000 in the security group.
+
+login >>> http://56.228.26.187:9000/
+-- username: admin
+-- password: admin // set new password and login
+generate token connecting jenkins and sonarqube
+>> squ_19284bda79fdac14829951ee9502d7d02be4b9d7
+
+
+4. Create the Pipeline & create EKS clusters
+Most of the work is done in the jenkins. thats the orchestrator
+/////install trivy on the jenkins machine
+
+-- sudo apt-get install wget gnupg
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+-- sudo apt-get update
+-- sudo apt-get install trivy
+
+
+NOTE: Anything not clear visit the site and Documentaion sites
+
+
+
+
+
+https://medium.com/@piyushkashyap045/comprehensive-guide-installing-docker-and-docker-compose-on-windows-linux-and-macos-a022cf82ac0b
