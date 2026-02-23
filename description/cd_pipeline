@@ -1,0 +1,26 @@
+/*
+  CD pipeline for the java_cicd Docker image.
+
+  Flow:
+  1) Authenticates to Docker Hub (using Jenkins credentials)
+  2) Deploys the latest image by starting a Docker container on the Jenkins agent host
+     (the machine running this pipeline), exposing the application on port 8070.
+
+  Note: This runs the container on the same server where the Jenkins job executes.
+*/
+
+pipeline {
+  agent any
+
+  stages {
+    stage('Docker Deploy To Container') {
+      steps {
+        script {
+          withDockerRegistry(credentialsId: 'mytoken', toolName: 'Docker') {
+            sh 'docker run -d --name java_cicd -p 8070:8070 lippatrick/java_cicd:latest'
+          }
+        }
+      }
+    }
+  }
+}
