@@ -54,6 +54,76 @@ Use kubernetes, the modern architecture though VM and docker still highly used!
 
 ---
 
+
+
+
+## Jenkins plugins used
+
+Install these in Jenkins (Manage Jenkins -> Plugins):
+
+- Pipeline (Declarative Pipeline)
+- Git plugin
+- Credentials Binding
+- SonarQube Scanner for Jenkins
+- OWASP Dependency-Check plugin
+- Docker Pipeline plugin
+
+---
+
+## Servers and ports
+
+### Server A (Ubuntu): Jenkins + Docker + Deployment Host
+- Jenkins: `8080` (recommended behind reverse proxy + SSL)
+- Application container: `8070` (or bind to localhost and reverse proxy)
+
+### Server B (Ubuntu): SonarQube + Nexus (Docker)
+- SonarQube: `9000`
+- Nexus: `8081`
+
+---
+
+## Prerequisites
+
+- AWS account and 2 Ubuntu EC2 instances (or 1 instance for demo)
+- Domain/subdomains if you plan reverse proxy + SSL (optional for the demo)
+- Docker installed on Server A (and Server B if running tools in containers)
+- Jenkins installed on Server A
+- SonarQube and Nexus running on Server B (Docker Compose recommended)
+- Git installed
+- Java and Maven configured in Jenkins Tools:
+  - JDK: `jdk11`
+  - Maven: `maven3`
+- SonarScanner configured in Jenkins Tools:
+  - Name: `sonar-scanner`
+
+---
+
+## Credentials required (Jenkins)
+
+Create these credentials in Jenkins (Manage Jenkins -> Credentials):
+
+### 1) Docker Hub credentials
+- ID: `mydocker`
+- Type: Username with password
+- Used to push `lipatrick/java_cicd:latest`
+
+### 2) SonarQube token
+- Generate token in SonarQube (My Account -> Security -> Tokens)
+- Store it securely in Jenkins (recommended):
+  - Either as Secret Text (example ID: `sonar-token`)
+  - Or inline temporarily (not recommended)
+
+---
+
+## Repository structure (example)
+
+- `Jenkinsfile` (CI pipeline)
+- `docker/Dockerfile`
+- `pom.xml`
+- `src/...`
+
+---
+
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-18-02.png)
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-19%2012-31-33.png)
@@ -68,6 +138,43 @@ Use kubernetes, the modern architecture though VM and docker still highly used!
 
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-19%2014-02-16.png)
+
+## Running the project
+
+### Step 1: Push code to GitHub
+Push your application source code and Jenkinsfile to GitHub.
+
+### Step 2: Configure Jenkins Tools
+In Jenkins:
+- Manage Jenkins -> Tools
+  - Configure JDK: `jdk11`
+  - Configure Maven: `maven3`
+  - Configure SonarScanner: `sonar-scanner`
+
+### Step 3: Create the CI pipeline job
+- Create Pipeline job: `java_cicd`
+- Point to your repository OR paste Jenkinsfile script
+- Ensure the job can access Docker (jenkins user in docker group)
+
+### Step 4: Create the CD pipeline job
+- Create Pipeline job: `java_CD`
+- CD pipeline runs `docker run` to deploy the pushed image
+
+### Step 5: Run CI
+Trigger `java_cicd`
+- It will push the image to Docker Hub
+- It will trigger `java_CD` to deploy the container
+
+### Step 6: Access the application
+If deployed on Server A:
+- `http://SERVER_A_PUBLIC_IP:8070`
+
+If you use reverse proxy (recommended):
+- `https://app.yourdomain.com`
+
+---
+
+
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-23%2012-27-53.png)
 
@@ -133,6 +240,7 @@ Ensure:
 
 ## License
 For learning and demonstration purposes.
+
 
 
 
