@@ -2,6 +2,8 @@
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/java_cicd-Architecture.png)
 
+![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-18-02.png)
+
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-19%2012-31-33.png)
 
 
@@ -31,11 +33,11 @@
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-17-18.png)
 
-![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-22%2022-18-02.png)
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-23%2012-27-53.png)
 
 ![image alt](https://github.com/lippatrick/java_cicd/blob/main/description/images/Screenshot%20from%202026-02-23%2012-28-20.png)
+
 
 
 
