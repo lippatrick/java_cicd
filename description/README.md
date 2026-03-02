@@ -1,6 +1,6 @@
 # Project java_cicd Description portifolio
 
-# End-to-End CI/CD Project from Scratch (AWS)
+## End-to-End CI/CD from Scratch (AWS)
 
 This project demonstrates a production-style CI/CD implementation on Amazon Web Services (AWS) using Jenkins, SonarQube, Nexus, OWASP Dependency-Check, Docker, and a simple CD flow. It covers building a Java application, running quality and security scans, building and pushing a Docker image to Docker Hub, then deploying the container (on the Jenkins host for demo purposes).
 
@@ -240,6 +240,7 @@ Ensure:
 
 ## License
 For learning and demonstration purposes.
+
 
 
 
